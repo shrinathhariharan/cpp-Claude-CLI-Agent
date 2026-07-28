@@ -184,7 +184,7 @@ int main(int argc, char* argv[]) {
             );
 
             std::string tool_result;
-            
+
             if (tool_name == "Read") {
                 std::string file_path = arguments["file_path"].get<std::string>();
                 tool_result = execute_read_tool(file_path);
@@ -198,15 +198,6 @@ int main(int argc, char* argv[]) {
                 tool_result = "Error: unknown tool '" + tool_name + "'";
             }
 
-            messages.push_back({
-                {"role", "tool"},
-                {"tool_call_id", tool_call_id},
-                {"content", tool_result}
-            });
-
-            // Feed the result back as a "tool" role message, tagged with
-            // the matching tool_call_id so the model knows which call
-            // this result answers.
             messages.push_back({
                 {"role", "tool"},
                 {"tool_call_id", tool_call_id},

@@ -63,8 +63,6 @@ json send_request(const std::string& base_url, const std::string& api_key, const
 
 std::string execute_bash_tool(const std::string& command)
 {
-    // Redirect stderr into stdout so popen's single stream captures both,
-    // matching "capture both stdout and stderr" from the spec.
     std::string full_command = command + " 2>&1";
 
     std::array<char, 4096> buffer;
@@ -83,6 +81,11 @@ std::string execute_bash_tool(const std::string& command)
 
     if (exit_code != 0) {
         output += "\n[Command exited with code " + std::to_string(exit_code) + "]";
+    } else if (output.empty()) {
+        // Some commands (rm, mv, mkdir, etc.) produce no output on success.
+        // Return something non-empty so the model gets clear confirmation
+        // rather than an ambiguous blank string.
+        output = "[Command completed successfully with no output]";
     }
 
     return output;

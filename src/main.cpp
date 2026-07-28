@@ -153,6 +153,23 @@ int main(int argc, char* argv[]) {
                     {"required", json::array({"file_path", "content"})}
                 }}
             }}
+        },
+        {
+            {"type", "function"},
+            {"function", {
+                {"name", "Bash"},
+                {"description", "Execute a shell command and return its output"},
+                {"parameters", {
+                    {"type", "object"},
+                    {"properties", {
+                        {"command", {
+                            {"type", "string"},
+                            {"description", "The shell command to execute"}
+                        }}
+                    }},
+                    {"required", json::array({"command"})}
+                }}
+            }}
         }
     });
 

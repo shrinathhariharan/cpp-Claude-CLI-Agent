@@ -9,12 +9,10 @@
 
 using json = nlohmann::json;
 
-std::string execute_read_tool(const json& arguments)
+std::string execute_read_tool(const std::string& file_path)
 {
-    std::string file_path = arguments["file_path"].get<std::string>();
-
     std::ifstream file{file_path};
-    if (!file) return "Error: could not open file '" + file_path + '\'';
+    if (!file) return "Error: could not open file '" + file_path + "'";
 
     std::ostringstream contents{};
     contents << file.rdbuf();
@@ -119,7 +117,7 @@ int main(int argc, char* argv[]) {
         }
         else
         {
-            std::cerr << "Unkown tool: " << tool_name << std::endl;
+            std::cerr << "Unknown tool: " << tool_name << std::endl;
             return 1;
         }
     }
@@ -128,9 +126,9 @@ int main(int argc, char* argv[]) {
     }
 
     // You can use print statements as follows for debugging, they'll be visible when running tests.
-    std::cerr << "Logs from your program will appear here!" << std::endl;
+    //std::cerr << "Logs from your program will appear here!" << std::endl;
 
-    std::cout << result["choices"][0]["message"]["content"].get<std::string>();
+    //std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
     return 0;
 }

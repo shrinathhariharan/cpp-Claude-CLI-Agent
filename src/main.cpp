@@ -31,10 +31,35 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    json messages = json::array({
+        {{"role", "user"}, {"content", prompt}}
+    });
+
+    
+
     json request_body = {
         {"model", "anthropic/claude-haiku-4.5"},
         {"messages", json::array({
             {{"role", "user"}, {"content", prompt}}
+        })},
+        {"tools", json::array({
+            {
+            "type": "function",
+            "function": {
+                "name": "Read",
+                "description": "Read and return the contents of a file",
+                "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                    "type": "string",
+                    "description": "The path to the file to read"
+                    }
+                },
+                "required": ["file_path"]
+                    }
+                }
+            }
         })}
     };
 
@@ -62,7 +87,6 @@ int main(int argc, char* argv[]) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     std::cerr << "Logs from your program will appear here!" << std::endl;
 
-    // TODO: Uncomment the line below to pass the first stage
     std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
     return 0;

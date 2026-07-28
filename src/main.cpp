@@ -61,6 +61,33 @@ json send_request(const std::string& base_url, const std::string& api_key, const
     return json::parse(response.text);
 }
 
+std::string execute_bash_tool(const std::string& command)
+{
+    // Redirect stderr into stdout so popen's single stream captures both,
+    // matching "capture both stdout and stderr" from the spec.
+    std::string full_command = command + " 2>&1";
+
+    std::array<char, 4096> buffer;
+    std::string output;
+
+    FILE* pipe = popen(full_command.c_str(), "r");
+    if (!pipe) {
+        return "Error: failed to execute command";
+    }
+
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+        output += buffer.data();
+    }
+
+    int exit_code = pclose(pipe);
+
+    if (exit_code != 0) {
+        output += "\n[Command exited with code " + std::to_string(exit_code) + "]";
+    }
+
+    return output;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3 || std::string(argv[1]) != "-p") {
         std::cerr << "Expected first argument to be '-p'" << std::endl;
@@ -148,6 +175,23 @@ int main(int argc, char* argv[]) {
         }}
     };
 
+    json bash_tool_spec = {
+        {"type", "function"},
+        {"function", {
+            {"name", "Bash"},
+            {"description", "Execute a shell command and return its output"},
+            {"parameters", {
+                {"type", "object"},
+                {"properties", {
+                    {"command", {
+                        {"type", "string"},
+                        {"description", "The shell command to execute"}
+                    }}
+                }},
+                {"required", json::array({"command"})}
+            }}
+        }}
+    };
 
     json messages = json::array({
         {{"role", "user"}, {"content", prompt}}
@@ -193,6 +237,10 @@ int main(int argc, char* argv[]) {
                 std::string file_path = arguments["file_path"].get<std::string>();
                 std::string content = arguments["content"].get<std::string>();
                 tool_result = execute_write_tool(file_path, content);
+            }
+            else if (tool_name == "Bash") {
+                std::string command = arguments["command"].get<std::string>();
+                tool_result = execute_bash_tool(command);
             }
             else {
                 tool_result = "Error: unknown tool '" + tool_name + "'";

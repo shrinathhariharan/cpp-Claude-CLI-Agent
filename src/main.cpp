@@ -9,9 +9,9 @@
 
 using json = nlohmann::json;
 
-std::string execute_read_tool(const json& args)
+std::string execute_read_tool(const json& arguments)
 {
-    std::string file_path = args["file_path"].get<std::string>();
+    std::string file_path = arguments["file_path"].get<std::string>();
 
     std::ifstream file{file_path};
     if (!file) return "Error: could not open file '" + file_path + '\'';

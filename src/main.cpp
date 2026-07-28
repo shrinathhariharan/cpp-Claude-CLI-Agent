@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
     {
         json tool_call = message["tool_calls"][0];
 
-        std:string tool_name = tool_call["function"]["name"].get<std::string>();
+        std::string tool_name = tool_call["function"]["name"].get<std::string>();
 
         json arguments = json::parse(
             tool_call["function"]["arguments"].get<std::string>();

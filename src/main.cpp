@@ -19,6 +19,22 @@ std::string execute_read_tool(const std::string& file_path)
     return contents.str();
 }
 
+std::string execute_write_tool(const std::string& file_path, const std::string& content)
+{
+    std::ofstream file{file_path};
+    if (!file) {
+        return "Error: could not open file '" + file_path + "' for writing";
+    }
+
+    file << content;
+
+    if (!file) {
+        return "Error: failed while writing to '" + file_path + "'";
+    }
+
+    return "Successfully wrote to '" + file_path + "'";
+}
+
 json send_request(const std::string& base_url, const std::string& api_key, const json& messages, const json& tools)
 {
     json request_body = {
@@ -86,8 +102,51 @@ int main(int argc, char* argv[]) {
                     {"required", json::array({"file_path"})}
                 }}
             }}
+        },
+        {
+            {"type", "function"},
+            {"function", {
+                {"name", "Write"},
+                {"description", "Write content to a file, overwriting it if it already exists"},
+                {"parameters", {
+                    {"type", "object"},
+                    {"properties", {
+                        {"file_path", {
+                            {"type", "string"},
+                            {"description", "The path to the file to write"}
+                        }},
+                        {"content", {
+                            {"type", "string"},
+                            {"description", "The content to write to the file"}
+                        }}
+                    }},
+                    {"required", json::array({"file_path", "content"})}
+                }}
+            }}
         }
     });
+
+    json write_tool_spec = {
+        {"type", "function"},
+        {"function", {
+            {"name", "Write"},
+            {"description", "Write content to a file, overwriting it if it already exists"},
+            {"parameters", {
+                {"type", "object"},
+                {"properties", {
+                    {"file_path", {
+                        {"type", "string"},
+                        {"description", "The path to the file to write"}
+                    }},
+                    {"content", {
+                        {"type", "string"},
+                        {"description", "The content to write to the file"}
+                    }}
+                }},
+                {"required", json::array({"file_path", "content"})}
+            }}
+        }}
+    };
 
 
     json messages = json::array({
@@ -125,12 +184,25 @@ int main(int argc, char* argv[]) {
             );
 
             std::string tool_result;
+            
             if (tool_name == "Read") {
                 std::string file_path = arguments["file_path"].get<std::string>();
                 tool_result = execute_read_tool(file_path);
-            } else {
+            }
+            else if (tool_name == "Write") {
+                std::string file_path = arguments["file_path"].get<std::string>();
+                std::string content = arguments["content"].get<std::string>();
+                tool_result = execute_write_tool(file_path, content);
+            }
+            else {
                 tool_result = "Error: unknown tool '" + tool_name + "'";
             }
+
+            messages.push_back({
+                {"role", "tool"},
+                {"tool_call_id", tool_call_id},
+                {"content", tool_result}
+            });
 
             // Feed the result back as a "tool" role message, tagged with
             // the matching tool_call_id so the model knows which call

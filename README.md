@@ -25,7 +25,7 @@ cmake --build build
 ./build/claude-code -p "Your prompt here"
 ```
 
-## What it does (short)
+## Overview
 
 - Sends a chat prompt to the configured base URL (default: `https://openrouter.ai/api/v1`) using the model `anthropic/claude-haiku-4.5`.
 - Provides three tool descriptors to the model:
@@ -68,5 +68,3 @@ export OPENROUTER_API_KEY="sk-..."
 - HTTP errors: verify `OPENROUTER_API_KEY` and set `OPENROUTER_BASE_URL` if your provider uses a different endpoint.
 
 ---
-
-If you want, I can also open a PR that further expands examples or adds a brief safe-example prompt. 

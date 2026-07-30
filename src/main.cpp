@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <array>
+#include <cstdio>
 
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
@@ -173,46 +175,6 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    json write_tool_spec = {
-        {"type", "function"},
-        {"function", {
-            {"name", "Write"},
-            {"description", "Write content to a file, overwriting it if it already exists"},
-            {"parameters", {
-                {"type", "object"},
-                {"properties", {
-                    {"file_path", {
-                        {"type", "string"},
-                        {"description", "The path to the file to write"}
-                    }},
-                    {"content", {
-                        {"type", "string"},
-                        {"description", "The content to write to the file"}
-                    }}
-                }},
-                {"required", json::array({"file_path", "content"})}
-            }}
-        }}
-    };
-
-    json bash_tool_spec = {
-        {"type", "function"},
-        {"function", {
-            {"name", "Bash"},
-            {"description", "Execute a shell command and return its output"},
-            {"parameters", {
-                {"type", "object"},
-                {"properties", {
-                    {"command", {
-                        {"type", "string"},
-                        {"description", "The shell command to execute"}
-                    }}
-                }},
-                {"required", json::array({"command"})}
-            }}
-        }}
-    };
-
     json messages = json::array({
         {{"role", "user"}, {"content", prompt}}
     });
@@ -273,37 +235,6 @@ int main(int argc, char* argv[]) {
             });
         }
     }
-
-    
-
-    json request_body = {
-        {"model", "anthropic/claude-haiku-4.5"},
-        {"messages", json::array({
-            {{"role", "user"}, {"content", prompt}}
-        })},
-        {"tools", json::array({
-            {
-                {"type", "function"},
-                {"function", {
-                    {"name", "Read"},
-                    {"description", "Read and return the contents of a file"},
-                    {"parameters", {
-                        {"type", "object"},
-                        {"properties", {
-                            {"file_path", {
-                                {"type", "string"},
-                                {"description", "The path to the file to read"}
-                            }}
-                        }},
-                        {"required", json::array({"file_path"})}
-                    }}
-                }}
-            }
-        })}
-    };
-
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    //std::cerr << "Logs from your program will appear here!" << std::endl;
 
     //std::cout << result["choices"][0]["message"]["content"].get<std::string>();
 
